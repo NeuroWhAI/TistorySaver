@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TistorySaver"
         mc:Ignorable="d"
-        Title="Tistory Saver" Height="260" Width="400" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="Tistory Saver" Height="240" Width="400" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <local:AuthWindowVM/>
     </Window.DataContext>
@@ -23,22 +23,17 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Margin="4" HorizontalAlignment="Right">App ID :</TextBlock>
-                <TextBlock Grid.Row="1" Margin="4" HorizontalAlignment="Right">Secret Key :</TextBlock>
-                <TextBlock Grid.Row="2" Margin="4" HorizontalAlignment="Right">CallBack :</TextBlock>
+                <TextBlock Grid.Row="1" Margin="4" HorizontalAlignment="Right">CallBack :</TextBlock>
                 <TextBox Grid.Row="0" Grid.Column="1" Margin="2"
                          Text="{Binding AppId}">
                 </TextBox>
                 <TextBox Grid.Row="1" Grid.Column="1" Margin="2"
-                         Text="{Binding SecretKey}">
-                </TextBox>
-                <TextBox Grid.Row="2" Grid.Column="1" Margin="2"
                          Text="{Binding CallBack}">
                 </TextBox>
             </Grid>
@@ -47,7 +42,8 @@
 
         <TextBlock Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource bool2vis}}"
                    Text="{Binding ErrorMessage}" FontStyle="Italic" Foreground="Red"
-                   HorizontalAlignment="Center" Margin="0,0,0,2">
+                   HorizontalAlignment="Center" Margin="0,0,0,2"
+                   TextTrimming="CharacterEllipsis">
         </TextBlock>
     </Grid>
 </Window>

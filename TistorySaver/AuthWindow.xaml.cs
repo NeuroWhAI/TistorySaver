@@ -26,6 +26,7 @@ namespace TistorySaver
 
 
             var vm = this.DataContext as AuthWindowVM;
+            vm.LoginService = new LoginService();
             vm.WhenTokenReceived += (token) => this.Dispatcher.Invoke(() => Vm_WhenTokenReceived(token));
         }
 

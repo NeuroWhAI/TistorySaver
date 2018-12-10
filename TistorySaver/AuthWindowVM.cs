@@ -18,26 +18,31 @@ namespace TistorySaver
             LoadClientData();
         }
 
-        public string AppId { get; set; }
-        public string SecretKey { get; set; }
-        public string CallBack { get; set; } = "http://localhost:9842/tistory-auth";
+        public string AppId { get; set; } = "2977b1972273c9fbce392246e8bde208";
+        public string CallBack { get; set; } = "https://neurowhai.tistory.com/297";
         public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
         public string ErrorMessage { get; set; }
 
         public RelayCommand StartAuth { get; set; }
 
+        public ILoginWindowService LoginService { get; set; } = null;
         public event Action<string> WhenTokenReceived;
 
         private readonly string ClientFile = "client.dat";
 
-        private async void OnStartAuth()
+        private void OnStartAuth()
         {
             StartAuth.IsEnabled = false;
 
             try
             {
-                var auth = new Authenticator(AppId, SecretKey, CallBack);
-                string token = await auth.Authorize();
+                if (LoginService == null)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var auth = new Authenticator(LoginService, AppId, CallBack);
+                string token = auth.Authorize();
 
                 SaveClientData();
 
@@ -75,14 +80,13 @@ namespace TistorySaver
             using (var bw = new BinaryWriter(new FileStream(ClientFile, FileMode.Create)))
             {
                 byte[] key;
-                byte[] encryptedSecret = Security.EncryptString(SecretKey, out key);
+                byte[] encryptedId = Security.EncryptString(AppId, out key);
 
-                bw.Write(encryptedSecret.Length);
-                bw.Write(encryptedSecret);
+                bw.Write(encryptedId.Length);
+                bw.Write(encryptedId);
                 bw.Write(key.Length);
                 bw.Write(key);
 
-                bw.Write(AppId);
                 bw.Write(CallBack);
             }
         }
@@ -101,9 +105,8 @@ namespace TistorySaver
                         int keyLen = br.ReadInt32();
                         byte[] keyBytes = br.ReadBytes(keyLen);
 
-                        SecretKey = Security.DecryptString(strBytes, keyBytes);
+                        AppId = Security.DecryptString(strBytes, keyBytes);
 
-                        AppId = br.ReadString();
                         CallBack = br.ReadString();
                     }
                 }
