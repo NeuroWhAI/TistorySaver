@@ -13,5 +13,24 @@ namespace TistorySaver
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            StartupUri = new Uri("pack://application:,,,/AuthWindow.xaml");
+
+            try
+            {
+                if (UpdateManager.CheckUpdate())
+                {
+                    StartupUri = new Uri("pack://application:,,,/UpdateWindow.xaml");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+                Console.Error.WriteLine(ex.StackTrace);
+            }
+        }
     }
 }
