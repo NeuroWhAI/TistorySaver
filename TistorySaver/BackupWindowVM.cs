@@ -122,9 +122,12 @@ namespace TistorySaver
 
                 var categories = await Api.ListCategory(blogName);
 
-                foreach (var category in categories.Categories)
+                if (categories.Categories != null)
                 {
-                    bakMgr.AddCategory(category.Id, category.Name, category.Parent);
+                    foreach (var category in categories.Categories)
+                    {
+                        bakMgr.AddCategory(category.Id, category.Name, category.Parent);
+                    }
                 }
 
 
