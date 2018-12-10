@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Navigation;
+using System.Reflection;
 
 namespace TistorySaver
 {
@@ -42,6 +43,14 @@ namespace TistorySaver
 
         private void WebBox_Navigated(object sender, NavigationEventArgs e)
         {
+            // Set WebBrowser to silent mode.
+            dynamic activeX = this.WebBox.GetType().InvokeMember("ActiveXInstance",
+                BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.NonPublic,
+                null, this.WebBox, new object[] { });
+            activeX.Silent = true;
+
+
+            // Check fragment.
             if (CheckWhenFragmentReceived != null)
             {
                 var args = new FragmentCheckArgs(e.Uri?.Fragment);
