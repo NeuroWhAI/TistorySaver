@@ -25,6 +25,8 @@ namespace TistorySaver
                 new BlogInfoData { BlogId="1235", Name="neurowhai-2", Title="내 블로그 2" },
                 new BlogInfoData { BlogId="1236", Name="neurowhai-3", Title="내 블로그 3" },
             });
+
+            CurrentPage = "[123] 테스트 글 제목입니다. 투 머치 토커 타이틀 얍얍.";
 #endif
         }
 
@@ -38,6 +40,7 @@ namespace TistorySaver
         public string Folder { get; set; }
         public int TotalPageCount { get; set; } = 1;
         public int NumPageCompleted { get; set; } = 0;
+        public string CurrentPage { get; set; }
 
         public RelayCommand FindFolderCommand { get; set; }
         public RelayCommand StartBackupCommand { get; set; }
@@ -140,6 +143,10 @@ namespace TistorySaver
                     // 현재 페이지의 글 백업.
                     foreach (var page in postList.Posts)
                     {
+                        // 작업 중인 페이지 표시.
+                        CurrentPage = string.Format("[{0}] {1}", page.Id, page.Title);
+                        OnPropertyChanged("CurrentPage");
+
                         // 존재하는 백업이 없으면 백업 진행.
                         if (bakMgr.BackupExists(page.CategoryId, page.Id) == false)
                         {
@@ -165,18 +172,23 @@ namespace TistorySaver
                                     }
                                     else
                                     {
-                                        throw;
+                                        ShowError("게시글을 불러올 수 없습니다.");
+                                        content = string.Empty;
                                     }
                                 }
                             }
 
-                            try
+                            if (string.IsNullOrEmpty(content) == false)
                             {
-                                await bakMgr.Backup(page.CategoryId, page.Id, content);
-                            }
-                            catch (Exception e)
-                            {
-                                ShowError(e.Message);
+                                try
+                                {
+                                    await bakMgr.Backup(page.CategoryId, page.Id, content);
+                                }
+                                catch
+                                {
+                                    // 불완전 백업.
+                                    ShowError("게시글의 백업에 실패하였습니다.");
+                                }
                             }
                         }
 
@@ -208,7 +220,8 @@ namespace TistorySaver
                                 }
                                 else
                                 {
-                                    throw;
+                                    ShowError("다음 페이지를 불러올 수 없습니다.");
+                                    return;
                                 }
                             }
                         }
@@ -236,6 +249,9 @@ namespace TistorySaver
 
                 FindFolderCommand.IsEnabled = true;
                 StartBackupCommand.IsEnabled = true;
+
+                CurrentPage = string.Empty;
+                OnPropertyChanged("CurrentPage");
             }
         }
 

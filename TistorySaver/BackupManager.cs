@@ -13,7 +13,7 @@ namespace TistorySaver
     {
         public BackupManager(string folder, string blogName)
         {
-            Root = Path.Combine(folder, SafePath(blogName));
+            Root = Path.Combine(folder, PathUtil.SafePath(blogName));
         }
 
         public string Root { get; set; }
@@ -25,7 +25,7 @@ namespace TistorySaver
 
         public void AddCategory(string id, string name, string parentId)
         {
-            Categories.Add(id, SafePath(name));
+            Categories.Add(id, PathUtil.SafePath(name));
 
             if (string.IsNullOrEmpty(parentId) == false)
             {
@@ -48,6 +48,13 @@ namespace TistorySaver
 
 
             string path = GetBackupPath(categoryId, pageId);
+
+
+            // 폴더 비우기.
+            foreach (string file in Directory.EnumerateFiles(path))
+            {
+                File.Delete(file);
+            }
 
 
             // 리소스 다운로드 및 경로 수정.
@@ -123,9 +130,19 @@ namespace TistorySaver
 
                     if (string.IsNullOrEmpty(filename))
                     {
-                        var uri = new Uri(src);
-                        filename = Path.GetFileName(uri.LocalPath);
+                        try
+                        {
+                            var uri = new Uri(src);
+                            filename = Path.GetFileName(uri.LocalPath);
+                        }
+                        catch (Exception e)
+                        {
+                            await Console.Error.WriteLineAsync(e.Message);
+                            await Console.Error.WriteLineAsync(e.StackTrace);
+                        }
                     }
+
+                    filename = PathUtil.SafeName(filename);
 
                     while (File.Exists(Path.Combine(path, filename)))
                     {
@@ -172,7 +189,7 @@ namespace TistorySaver
 
         private string GetBackupPath(string categoryId, string pageId)
         {
-            pageId = SafePath(pageId);
+            pageId = PathUtil.SafePath(pageId);
 
             string path;
 
@@ -199,16 +216,6 @@ namespace TistorySaver
             if(Directory.Exists(path) == false)
             {
                 Directory.CreateDirectory(path);
-            }
-
-            return path;
-        }
-
-        private string SafePath(string path)
-        {
-            foreach (char ch in Path.GetInvalidPathChars())
-            {
-                path = path.Replace(ch, '_');
             }
 
             return path;

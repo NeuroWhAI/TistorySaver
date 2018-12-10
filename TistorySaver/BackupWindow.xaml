@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TistorySaver"
         mc:Ignorable="d"
-        Title="Tistory Saver" Height="260" Width="450" WindowStartupLocation="CenterScreen"
+        Title="Tistory Saver" Height="268" Width="450" WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded">
     <Window.DataContext>
         <local:BackupWindowVM/>
@@ -65,8 +65,14 @@
                 </Button>
             </Grid>
             <Button Padding="4" Margin="0,8" Command="{Binding StartBackupCommand}">시작</Button>
-            <ProgressBar Height="8" Maximum="{Binding TotalPageCount}"
+            <Grid>
+                <ProgressBar Maximum="{Binding TotalPageCount}"
                          Minimum="0" Value="{Binding NumPageCompleted}"></ProgressBar>
+                <TextBlock Text="{Binding CurrentPage}" HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="64,2" FontSize="10"></TextBlock>
+            </Grid>
         </StackPanel>
 
         <TextBlock Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource bool2vis}}"
