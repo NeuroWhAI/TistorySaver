@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:TistorySaver"
         mc:Ignorable="d"
         Title="Tistory Saver" Height="268" Width="450" WindowStartupLocation="CenterScreen"
+        MaxHeight="280"
         Loaded="Window_Loaded">
     <Window.DataContext>
         <local:BackupWindowVM/>
