@@ -25,9 +25,19 @@ namespace TistorySaver
 
         public List<LogItem> LogList { get; set; } = new List<LogItem>();
 
-        public void AddLog(string id, string log)
+        public void SetLog(BackupLogger logger)
         {
-            LogList.Add(new LogItem { Id = id, Log = log });
+            LogList.Clear();
+
+            foreach (string postId in logger.EnumeratePost())
+            {
+                var item = new LogItem();
+                item.Id = postId;
+                item.Log = string.Join("\n", logger.EnumerateMessages(postId));
+
+                LogList.Add(item);
+            }
+
             OnPropertyChanged("LogList");
         }
     }
