@@ -13,13 +13,17 @@ namespace TistorySaver
 
         }
 
+        private readonly object m_syncObj = new object();
         private Dictionary<string, List<string>> m_log = new Dictionary<string, List<string>>();
 
         public void Add(string postId, string message)
         {
             List<string> que = GetPostMessages(postId);
 
-            que.Add(message);
+            lock (m_syncObj)
+            {
+                que.Add(message);
+            }
         }
 
         public IEnumerable<string> EnumeratePost()
@@ -36,16 +40,19 @@ namespace TistorySaver
 
         private List<string> GetPostMessages(string postId)
         {
-            if (m_log.ContainsKey(postId))
+            lock (m_syncObj)
             {
-                return m_log[postId];
-            }
-            else
-            {
-                var que = new List<string>();
-                m_log.Add(postId, que);
+                if (m_log.ContainsKey(postId))
+                {
+                    return m_log[postId];
+                }
+                else
+                {
+                    var que = new List<string>();
+                    m_log.Add(postId, que);
 
-                return que;
+                    return que;
+                }
             }
         }
     }
