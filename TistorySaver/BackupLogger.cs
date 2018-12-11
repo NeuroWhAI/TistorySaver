@@ -26,6 +26,8 @@ namespace TistorySaver
             }
         }
 
+        public bool IsEmpty => m_log.Count == 0;
+
         public IEnumerable<string> EnumeratePost()
         {
             return m_log.Keys.AsEnumerable();

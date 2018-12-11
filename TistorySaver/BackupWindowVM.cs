@@ -45,6 +45,8 @@ namespace TistorySaver
         public RelayCommand FindFolderCommand { get; set; }
         public RelayCommand StartBackupCommand { get; set; }
 
+        public ILogWinService LogService { get; set; } = null;
+
         private TistoryApi Api { get; set; }
 
         public async Task Initialize(string apiToken)
@@ -238,6 +240,16 @@ namespace TistorySaver
 
 
                 HideError();
+
+
+                // Show backup log.
+                if (logger.IsEmpty == false)
+                {
+                    var logVm = new LogWindowVM();
+                    logVm.SetLog(logger);
+
+                    LogService.ShowLogDialog(logVm);
+                }
             }
             catch (Exception e)
             {

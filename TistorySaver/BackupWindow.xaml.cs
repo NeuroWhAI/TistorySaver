@@ -31,6 +31,8 @@ namespace TistorySaver
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             var vm = this.DataContext as BackupWindowVM;
+            vm.LogService = new LogWinService();
+
             await vm.Initialize(Token);
 
             this.Activate();
