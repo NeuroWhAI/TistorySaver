@@ -11,9 +11,12 @@ namespace TistorySaver
         public LogWindowVM()
         {
 #if DEBUG
-            LogList.Add(new LogItem { Id = "123", Log = "테스트 로그입니다." });
-            LogList.Add(new LogItem { Id = "126", Log = "테스트 로그입니다.\n로그 테스트 데이터.\nTEST!" });
-            LogList.Add(new LogItem { Id = "142", Log = "테스트 로그입니다." });
+            for (int i = 0; i < 4; ++i)
+            {
+                LogList.Add(new LogItem { Id = "123", Log = "테스트 로그입니다." });
+                LogList.Add(new LogItem { Id = "126", Log = "테스트 로그입니다.\n로그 테스트 데이터.\nTEST!" });
+                LogList.Add(new LogItem { Id = "142", Log = "테스트 로그입니다." });
+            }
 #endif
         }
 

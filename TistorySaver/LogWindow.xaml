@@ -10,11 +10,13 @@
         <local:LogWindowVM/>
     </Window.DataContext>
     <Grid>
-        <ListView ItemsSource="{Binding LogList}">
+        <ListView ItemsSource="{Binding LogList}"
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  ScrollViewer.CanContentScroll="False">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Id" Width="64" DisplayMemberBinding="{Binding Id}"/>
-                    <GridViewColumn Header="Log" Width="350" DisplayMemberBinding="{Binding Log}"/>
+                    <GridViewColumn Header="Log" Width="330" DisplayMemberBinding="{Binding Log}"/>
                 </GridView>
             </ListView.View>
         </ListView>
