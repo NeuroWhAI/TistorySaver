@@ -209,11 +209,10 @@ namespace TistorySaver
                             {
                                 await Task.Delay(5000);
                             }
-                        }
-                        catch
-                        {
-                            Logger?.Add(pageId, string.Format("리소스 다운로드 실패.\n src: {0}", src));
-                            break;
+                            else
+                            {
+                                Logger?.Add(pageId, string.Format("리소스 다운로드 실패.\n src: {0}", src));
+                            }
                         }
                     }
 
