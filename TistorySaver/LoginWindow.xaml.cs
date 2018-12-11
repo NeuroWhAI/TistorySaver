@@ -19,7 +19,7 @@ namespace TistorySaver
     /// <summary>
     /// LoginWindow.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class LoginWindow : Window, ILoginWindow
+    public partial class LoginWindow : Window
     {
         public LoginWindow()
         {
@@ -28,13 +28,7 @@ namespace TistorySaver
 
         public event Action<FragmentCheckArgs> CheckWhenFragmentReceived;
 
-        private string m_fragment = null;
-        public string LoginFragment => m_fragment;
-
-        void ILoginWindow.ShowDialog()
-        {
-            this.ShowDialog();
-        }
+        public string LoginFragment { get; set; }
 
         public void NavigatePage(string url)
         {
@@ -58,7 +52,7 @@ namespace TistorySaver
 
                 if (args.IsDone)
                 {
-                    m_fragment = e.Uri?.Fragment;
+                    LoginFragment = e.Uri?.Fragment;
                     this.Close();
                 }
             }

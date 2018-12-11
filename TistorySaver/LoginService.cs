@@ -12,7 +12,7 @@ namespace TistorySaver
 
         public string ShowLoginDialog(string url)
         {
-            ILoginWindow win = new LoginWindow();
+            var win = new LoginWindow();
             win.CheckWhenFragmentReceived += args =>
             {
                 if (CheckWhenFragmentReceived != null)

@@ -72,7 +72,6 @@
     </Compile>
     <Compile Include="BackupWindowVM.cs" />
     <Compile Include="FragmentCheckArgs.cs" />
-    <Compile Include="ILoginWindow.cs" />
     <Compile Include="ILoginWindowService.cs" />
     <Compile Include="LoginService.cs" />
     <Compile Include="LoginWindow.xaml.cs">
