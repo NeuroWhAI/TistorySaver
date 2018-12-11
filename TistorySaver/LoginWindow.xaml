@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:TistorySaver"
         mc:Ignorable="d"
         Title="Tistory Saver" Height="400" Width="500"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Closed="Window_Closed">
     <Grid>
         <WebBrowser x:Name="WebBox"
                     Navigated="WebBox_Navigated"

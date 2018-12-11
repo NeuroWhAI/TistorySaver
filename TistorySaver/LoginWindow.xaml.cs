@@ -53,9 +53,15 @@ namespace TistorySaver
                 if (args.IsDone)
                 {
                     LoginFragment = e.Uri?.Fragment;
+
                     this.Close();
                 }
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            this.WebBox.Navigate("about:blank");
         }
     }
 }
