@@ -198,7 +198,7 @@ namespace TistorySaver
                         {
                             using (var client = new WebClient())
                             {
-                                client.DownloadFile(src, dest);
+                                await client.DownloadFileTaskAsync(src, dest);
                             }
 
                             break;
