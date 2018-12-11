@@ -76,12 +76,13 @@ namespace TistorySaver
 
         private void OnFindFolder()
         {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                Folder = dialog.SelectedPath;
-                OnPropertyChanged("Folder");
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    Folder = dialog.SelectedPath;
+                    OnPropertyChanged("Folder");
+                }
             }
         }
 
