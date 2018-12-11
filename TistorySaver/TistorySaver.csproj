@@ -66,6 +66,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Authenticator.cs" />
+    <Compile Include="BackupLogger.cs" />
     <Compile Include="BackupManager.cs" />
     <Compile Include="BackupWindow.xaml.cs">
       <DependentUpon>BackupWindow.xaml</DependentUpon>

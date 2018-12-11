@@ -117,7 +117,9 @@ namespace TistorySaver
                 }
 
 
+                var logger = new BackupLogger();
                 var bakMgr = new BackupManager(Folder, blogName);
+                bakMgr.Logger = logger;
 
 
                 var categories = await Api.ListCategory(blogName);
@@ -176,6 +178,8 @@ namespace TistorySaver
                                     else
                                     {
                                         ShowError("게시글을 불러올 수 없습니다.");
+                                        logger.Add(page.Id, "글의 내용을 받아올 수 없습니다.");
+
                                         content = string.Empty;
                                     }
                                 }
@@ -189,8 +193,8 @@ namespace TistorySaver
                                 }
                                 catch
                                 {
-                                    // 불완전 백업.
                                     ShowError("게시글의 백업에 실패하였습니다.");
+                                    logger.Add(page.Id, "불완전 백업.");
                                 }
                             }
                         }

@@ -16,6 +16,8 @@ namespace TistorySaver
             Root = Path.Combine(folder, PathUtil.SafePath(blogName));
         }
 
+        public BackupLogger Logger { get; set; } = null;
+
         public string Root { get; set; }
 
         public Dictionary<string, string> Categories { get; set; } = new Dictionary<string, string>();
@@ -51,9 +53,17 @@ namespace TistorySaver
 
 
             // 폴더 비우기.
-            foreach (string file in Directory.EnumerateFiles(path))
+            try
             {
-                File.Delete(file);
+                foreach (string file in Directory.EnumerateFiles(path))
+                {
+                    File.Delete(file);
+                }
+            }
+            catch
+            {
+                Logger?.Add(pageId, "백업 폴더를 비울 수 없습니다.");
+                // 폴더 정리 실패는 백업 실패로 간주하지 않음.
             }
 
 
@@ -63,9 +73,9 @@ namespace TistorySaver
                 var doc = new HtmlDocument();
                 doc.LoadHtml(content);
 
-                await BackupResources(path, "img", doc,
+                await BackupResources(path, pageId, "img", doc,
                     "//img", "src", "filename");
-                await BackupResources(path, "attachment", doc,
+                await BackupResources(path, pageId, "attachment", doc,
                     "//a[contains(@href,\'tistory.com/attachment/\')]", "href");
 
                 content = doc.DocumentNode.OuterHtml;
@@ -76,9 +86,17 @@ namespace TistorySaver
             }
 
 
-            using (var sw = File.CreateText(Path.Combine(path, "content.html")))
+            try
             {
-                await sw.WriteAsync(content);
+                using (var sw = File.CreateText(Path.Combine(path, "content.html")))
+                {
+                    await sw.WriteAsync(content);
+                }
+            }
+            catch
+            {
+                Logger?.Add(pageId, "글 백업 파일을 만들 수 없습니다.");
+                throw; // 백업 실패.
             }
 
 
@@ -89,21 +107,55 @@ namespace TistorySaver
 
 
             // 완료 표시 파일 생성.
-            path = Path.Combine(path, SignatureFileName);
-            File.Create(path).Close();
+            try
+            {
+                path = Path.Combine(path, SignatureFileName);
+                File.Create(path).Close();
+            }
+            catch
+            {
+                Logger?.Add(pageId, "백업을 완료할 수 없습니다.");
+            }
+        }
+
+        private string MakeResourceName(string path, string rcType, string src, string hint, ref int srcNum)
+        {
+            string filename = hint;
+
+            if (string.IsNullOrEmpty(filename))
+            {
+                try
+                {
+                    var uri = new Uri(src);
+                    filename = Path.GetFileName(uri.LocalPath);
+                }
+                catch
+                { }
+            }
+
+            filename = PathUtil.SafeName(filename);
+
+            while (File.Exists(Path.Combine(path, filename)))
+            {
+                filename = rcType + srcNum;
+                srcNum += 1;
+            }
+
+            return filename;
         }
 
         /// <summary>
         /// 페이지 내의 리소스들을 다운로드 합니다.
         /// </summary>
         /// <param name="path">저장할 폴더 경로입니다.</param>
+        /// <param name="pageId">게시글 아이디입니다.</param>
         /// <param name="rcType">리소스 종류로서 파일 이름에 접두사로 붙을 수 있습니다.</param>
         /// <param name="doc">검색할 HTML 문서 객체입니다.</param>
         /// <param name="nodePath">XPath에 해당하는 노드를 검색합니다.</param>
         /// <param name="srcAttribute">리소스 경로가 담긴 속성입니다.</param>
         /// <param name="filenameAttribute">리소스 이름이 담긴 속성입니다.</param>
         /// <returns></returns>
-        private async Task BackupResources(string path, string rcType,
+        private async Task BackupResources(string path, string pageId, string rcType,
             HtmlDocument doc, string nodePath, string srcAttribute, string filenameAttribute = "")
         {
             var nodes = doc.DocumentNode.SelectNodes(nodePath);
@@ -122,32 +174,19 @@ namespace TistorySaver
                 if (string.IsNullOrWhiteSpace(src) == false)
                 {
                     string filename = string.Empty;
-
                     if (string.IsNullOrEmpty(filenameAttribute) == false)
                     {
                         filename = WebUtility.HtmlDecode(node.GetAttributeValue(filenameAttribute, string.Empty));
                     }
 
-                    if (string.IsNullOrEmpty(filename))
+                    try
                     {
-                        try
-                        {
-                            var uri = new Uri(src);
-                            filename = Path.GetFileName(uri.LocalPath);
-                        }
-                        catch (Exception e)
-                        {
-                            await Console.Error.WriteLineAsync(e.Message);
-                            await Console.Error.WriteLineAsync(e.StackTrace);
-                        }
+                        filename = MakeResourceName(path, rcType, src, filename, ref srcNum);
                     }
-
-                    filename = PathUtil.SafeName(filename);
-
-                    while (File.Exists(Path.Combine(path, filename)))
+                    catch
                     {
-                        filename = rcType + srcNum;
-                        srcNum += 1;
+                        Logger?.Add(pageId, string.Format("리소스 이름 부여 실패.\n src: {0}", src));
+                        continue;
                     }
 
                     string dest = Path.Combine(path, filename);
@@ -173,6 +212,7 @@ namespace TistorySaver
                         }
                         catch
                         {
+                            Logger?.Add(pageId, string.Format("리소스 다운로드 실패.\n src: {0}", src));
                             break;
                         }
                     }
