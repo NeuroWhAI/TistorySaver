@@ -118,8 +118,7 @@ namespace TistorySaver
             }
         }
 
-        private string MakeResourceName(string path, string rcType, string src, string hint, string ext,
-            ref int srcNum)
+        private async Task<string> MakeResourceName(string path, string rcType, string src, string hint)
         {
             string filename = hint;
 
@@ -134,16 +133,23 @@ namespace TistorySaver
                 { }
             }
 
+            string extension = string.Empty;
+
             if (filename.Contains('.') == false)
             {
-                filename += ext;
+                string mime = await GetContentTypeFromUri(src);
+                extension = MimeToExtension(mime);
+
+                filename += extension;
             }
 
             filename = PathUtil.SafePath(filename);
 
+            int srcNum = 1;
+
             while (File.Exists(Path.Combine(path, filename)))
             {
-                filename = rcType + srcNum + ext;
+                filename = rcType + srcNum + extension;
                 srcNum += 1;
             }
 
@@ -230,8 +236,6 @@ namespace TistorySaver
                 return;
             }
 
-            int srcNum = 1;
-
             foreach (var node in nodes)
             {
                 string src = node.GetAttributeValue(srcAttribute, string.Empty);
@@ -245,18 +249,9 @@ namespace TistorySaver
                         filename = WebUtility.HtmlDecode(node.GetAttributeValue(filenameAttribute, string.Empty));
                     }
 
-                    string extension = string.Empty;
-
-                    if (string.IsNullOrEmpty(filename) || filename.Contains('.') == false)
-                    {
-                        string mime = await GetContentTypeFromUri(src);
-                        extension = MimeToExtension(mime);
-                    }
-
                     try
                     {
-                        filename = MakeResourceName(path, rcType, src, filename, extension,
-                            ref srcNum);
+                        filename = await MakeResourceName(path, rcType, src, filename);
                     }
                     catch
                     {
