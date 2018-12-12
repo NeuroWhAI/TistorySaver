@@ -1,5 +1,7 @@
 # Tistory Saver
 
+[![Build status](https://ci.appveyor.com/api/projects/status/9rjv4op0rk9qlra4?svg=true)](https://ci.appveyor.com/project/NeuroWhAI/tistorysaver)
+
 [OpenAPI](https://tistory.github.io/document-tistory-apis)를 사용하여 티스토리의 글을 파일로 백업합니다.
 
 ## Features
