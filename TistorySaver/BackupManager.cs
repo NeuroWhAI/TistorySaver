@@ -281,6 +281,8 @@ namespace TistorySaver
                             }
                             else
                             {
+                                File.Delete(dest);
+
                                 Logger?.Add(pageId, string.Format("리소스 다운로드 실패.\n src: {0}", src));
                             }
                         }
