@@ -241,6 +241,9 @@ namespace TistorySaver
 
                 HideError();
 
+                CurrentPage = string.Empty;
+                OnPropertyChanged("CurrentPage");
+
 
                 // Show backup log.
                 if (logger.IsEmpty == false)
@@ -269,9 +272,6 @@ namespace TistorySaver
 
                 FindFolderCommand.IsEnabled = true;
                 StartBackupCommand.IsEnabled = true;
-
-                CurrentPage = string.Empty;
-                OnPropertyChanged("CurrentPage");
             }
         }
 
