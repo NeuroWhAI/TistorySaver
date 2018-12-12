@@ -118,7 +118,8 @@ namespace TistorySaver
             }
         }
 
-        private string MakeResourceName(string path, string rcType, string src, string hint, ref int srcNum)
+        private string MakeResourceName(string path, string rcType, string src, string hint, string ext,
+            ref int srcNum)
         {
             string filename = hint;
 
@@ -133,15 +134,78 @@ namespace TistorySaver
                 { }
             }
 
+            if (filename.Contains('.') == false)
+            {
+                filename += ext;
+            }
+
             filename = PathUtil.SafePath(filename);
 
             while (File.Exists(Path.Combine(path, filename)))
             {
-                filename = rcType + srcNum;
+                filename = rcType + srcNum + ext;
                 srcNum += 1;
             }
 
             return filename;
+        }
+
+        private string MimeToExtension(string mime)
+        {
+            mime = mime.ToLower();
+
+            switch (mime)
+            {
+                case "image/x-jg": return ".art";
+                case "image/bmp": return ".bmp";
+                case "image/x-cmx": return ".cmx";
+                case "image/cis-cod": return ".cod";
+                case "image/gif": return ".gif";
+                case "image/x-icon": return ".ico";
+                case "image/ief": return ".ief";
+                case "image/pjpeg": return ".jfif";
+                case "image/jpeg": return ".jpg";
+                case "image/jpg": return ".jpg";
+                case "image/x-macpaint": return ".mac";
+                case "image/x-portable-bitmap": return ".pbm";
+                case "image/pict": return ".pct";
+                case "image/x-portable-graymap": return ".pgm";
+                case "image/png": return ".png";
+                case "image/x-portable-anymap": return ".pcm";
+                case "image/x-portable-pixmap": return ".ppm";
+                case "image/x-quicktime": return ".qti";
+                case "image/x-cmu-raster": return ".ras";
+                case "image/x-vnd.rn-realflash": return ".rf";
+                case "image/x-rgb": return ".rgb";
+                case "image/tiff": return ".tif";
+                case "image/vnd.wap.wbmp": return ".wbmp";
+                case "image/vnd.ms-photo": return ".wdp";
+                case "image/x-xbitmap": return ".xbm";
+                case "image/x-xpixmap": return ".xpm";
+                case "image/x-xwindowdump": return ".xwd";
+                case "image/webp": return ".webp";
+                case "image/svg+xml": return ".svg";
+            }
+
+            return string.Empty;
+        }
+
+        private async Task<string> GetContentTypeFromUri(string uri)
+        {
+            try
+            {
+                var req = WebRequest.CreateHttp(uri);
+                req.Method = "HEAD";
+
+                using (var res = await req.GetResponseAsync())
+                {
+                    return res.ContentType;
+                }
+            }
+            catch
+            { }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -156,7 +220,8 @@ namespace TistorySaver
         /// <param name="filenameAttribute">리소스 이름이 담긴 속성입니다.</param>
         /// <returns></returns>
         private async Task BackupResources(string path, string pageId, string rcType,
-            HtmlDocument doc, string nodePath, string srcAttribute, string filenameAttribute = "")
+            HtmlDocument doc, string nodePath, string srcAttribute,
+            string filenameAttribute = "")
         {
             var nodes = doc.DocumentNode.SelectNodes(nodePath);
 
@@ -174,14 +239,24 @@ namespace TistorySaver
                 if (string.IsNullOrWhiteSpace(src) == false)
                 {
                     string filename = string.Empty;
+
                     if (string.IsNullOrEmpty(filenameAttribute) == false)
                     {
                         filename = WebUtility.HtmlDecode(node.GetAttributeValue(filenameAttribute, string.Empty));
                     }
 
+                    string extension = string.Empty;
+
+                    if (string.IsNullOrEmpty(filename) || filename.Contains('.') == false)
+                    {
+                        string mime = await GetContentTypeFromUri(src);
+                        extension = MimeToExtension(mime);
+                    }
+
                     try
                     {
-                        filename = MakeResourceName(path, rcType, src, filename, ref srcNum);
+                        filename = MakeResourceName(path, rcType, src, filename, extension,
+                            ref srcNum);
                     }
                     catch
                     {
