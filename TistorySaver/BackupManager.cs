@@ -133,7 +133,7 @@ namespace TistorySaver
                 { }
             }
 
-            filename = PathUtil.SafeName(filename);
+            filename = PathUtil.SafePath(filename);
 
             while (File.Exists(Path.Combine(path, filename)))
             {
