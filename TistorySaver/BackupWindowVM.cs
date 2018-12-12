@@ -136,8 +136,8 @@ namespace TistorySaver
                 }
 
 
-                int currentPage = 1;
-                var postList = await Api.ListPost(blogName, currentPage);
+                int pageNum = 1;
+                var postList = await Api.ListPost(blogName, pageNum);
 
                 TotalPageCount = postList.TotalCount;
                 OnPropertyChanged("TotalPageCount");
@@ -209,14 +209,14 @@ namespace TistorySaver
                     // 다음 페이지 불러오기.
                     if (NumPageCompleted < TotalPageCount)
                     {
-                        currentPage += 1;
+                        pageNum += 1;
 
                         int maxRetryCount = 10;
                         for (int retry = 0; retry <= maxRetryCount; ++retry)
                         {
                             try
                             {
-                                postList = await Api.ListPost(blogName, currentPage);
+                                postList = await Api.ListPost(blogName, pageNum);
 
                                 break;
                             }
