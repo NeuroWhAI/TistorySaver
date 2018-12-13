@@ -14,14 +14,16 @@ namespace TistorySaver
         public BackupManager(string folder, string blogName)
         {
             Root = Path.Combine(folder, PathUtil.SafePath(blogName));
+
+            Categories.Add("-2", "ts_공지");
         }
 
         public BackupLogger Logger { get; set; } = null;
 
         public string Root { get; set; }
 
-        public Dictionary<string, string> Categories { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> ParentMap { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Categories { get; private set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> ParentMap { get; private set; } = new Dictionary<string, string>();
 
         public string SignatureFileName { get; set; } = "ts_bak.txt";
 
