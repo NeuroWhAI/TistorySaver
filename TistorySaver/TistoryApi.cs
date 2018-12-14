@@ -84,6 +84,11 @@ namespace TistorySaver
 
             var item = tistory["item"];
 
+            if (item == null)
+            {
+                throw new InvalidDataException("API 응답이 올바르지 않습니다.");
+            }
+
             return item;
         }
 
