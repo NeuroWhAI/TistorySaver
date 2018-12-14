@@ -173,7 +173,7 @@ namespace TistorySaver
 
                                     break;
                                 }
-                                catch (WebException e)
+                                catch (Exception e)
                                 {
                                     if (retry < maxRetryCount)
                                     {
@@ -223,7 +223,7 @@ namespace TistorySaver
 
                                 break;
                             }
-                            catch (WebException e)
+                            catch (Exception e)
                             {
                                 if (retry < maxRetryCount)
                                 {
