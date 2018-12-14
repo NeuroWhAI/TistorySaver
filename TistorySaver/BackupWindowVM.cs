@@ -73,6 +73,8 @@ namespace TistorySaver
             catch (Exception e)
             {
                 ShowError(e.Message);
+
+                CreateDebugLog(e.Message, e.StackTrace);
             }
         }
 
@@ -252,10 +254,17 @@ namespace TistorySaver
                 if (e.InnerException == null)
                 {
                     ShowError(e.Message);
+
+                    CreateDebugLog(e.Message, e.StackTrace);
                 }
                 else
                 {
-                    ShowError(e.InnerException.Message);
+                    var inner = e.InnerException;
+
+                    ShowError(inner.Message);
+
+                    CreateDebugLog(e.Message, e.StackTrace, "---- Inner Exception ----",
+                        inner.Message, inner.StackTrace);
                 }
             }
             finally
@@ -290,6 +299,16 @@ namespace TistorySaver
             ErrorMessage = string.Empty;
             OnPropertyChanged("HasError");
             OnPropertyChanged("ErrorMessage");
+        }
+
+        private void CreateDebugLog(params string[] lines)
+        {
+            try
+            {
+                File.WriteAllLines("log.txt", lines);
+            }
+            catch
+            { }
         }
     }
 }
