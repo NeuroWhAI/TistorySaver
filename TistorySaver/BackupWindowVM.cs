@@ -98,6 +98,20 @@ namespace TistorySaver
             }
 
 
+            string blogName;
+
+            if (SelectedBlogIndex >= 0 && SelectedBlogIndex < BlogList.Count)
+            {
+                blogName = BlogList[SelectedBlogIndex].Name;
+            }
+            else
+            {
+                ShowError("선택된 블로그가 유효하지 않습니다.");
+
+                return;
+            }
+
+
             FindFolderCommand.IsEnabled = false;
             StartBackupCommand.IsEnabled = false;
 
@@ -106,25 +120,14 @@ namespace TistorySaver
 
             HideError();
 
+
+            var logger = new BackupLogger();
+            var bakMgr = new BackupManager(Folder, blogName);
+            bakMgr.Logger = logger;
+
+
             try
             {
-                string blogName;
-
-                if (SelectedBlogIndex >= 0 && SelectedBlogIndex < BlogList.Count)
-                {
-                    blogName = BlogList[SelectedBlogIndex].Name;
-                }
-                else
-                {
-                    throw new IndexOutOfRangeException("선택된 블로그가 유효하지 않습니다.");
-                }
-
-
-                var logger = new BackupLogger();
-                var bakMgr = new BackupManager(Folder, blogName);
-                bakMgr.Logger = logger;
-
-
                 var categories = await Api.ListCategory(blogName);
 
                 if (categories.Categories != null)
@@ -243,16 +246,6 @@ namespace TistorySaver
 
                 CurrentPage = string.Empty;
                 OnPropertyChanged("CurrentPage");
-
-
-                // Show backup log.
-                if (logger.IsEmpty == false)
-                {
-                    var logVm = new LogWindowVM();
-                    logVm.SetLog(logger);
-
-                    LogService.ShowLogDialog(logVm);
-                }
             }
             catch (Exception e)
             {
@@ -267,6 +260,16 @@ namespace TistorySaver
             }
             finally
             {
+                // Show backup log.
+                if (logger.IsEmpty == false)
+                {
+                    var logVm = new LogWindowVM();
+                    logVm.SetLog(logger);
+
+                    LogService.ShowLogDialog(logVm);
+                }
+
+
                 IsIdle = true;
                 OnPropertyChanged("IsIdle");
 
