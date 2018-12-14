@@ -312,9 +312,18 @@ namespace TistorySaver
                 {
                     string parentId = ParentMap[categoryId];
 
-                    path = Path.Combine(Root,
-                        Path.Combine(Categories[parentId], Categories[categoryId]),
-                        pageId);
+                    if (Categories.ContainsKey(parentId))
+                    {
+                        path = Path.Combine(Root,
+                            Categories[parentId], Categories[categoryId],
+                            pageId);
+                    }
+                    else
+                    {
+                        path = Path.Combine(Root,
+                            "ts_고아", Categories[categoryId],
+                            pageId);
+                    }
                 }
                 else
                 {
