@@ -197,7 +197,8 @@ namespace TistorySaver
                             {
                                 try
                                 {
-                                    await bakMgr.Backup(page.CategoryId, page.Id, content);
+                                    await bakMgr.Backup(page.CategoryId, page.Id,
+                                        page.Title, content);
                                 }
                                 catch
                                 {

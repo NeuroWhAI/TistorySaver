@@ -46,7 +46,7 @@ namespace TistorySaver
             return File.Exists(path);
         }
 
-        public async Task Backup(string categoryId, string pageId, string content)
+        public async Task Backup(string categoryId, string pageId, string title, string content)
         {
             Exception latestError = null;
 
@@ -66,6 +66,20 @@ namespace TistorySaver
             {
                 Logger?.Add(pageId, "백업 폴더를 비울 수 없습니다.");
                 // 폴더 정리 실패는 백업 실패로 간주하지 않음.
+            }
+
+
+            // 제목 백업
+            try
+            {
+                using (var sw = File.CreateText(Path.Combine(path, "title.txt")))
+                {
+                    await sw.WriteAsync(title);
+                }
+            }
+            catch
+            {
+                Logger?.Add(pageId, "제목 백업 파일을 만들 수 없습니다.");
             }
 
 
