@@ -86,6 +86,8 @@ namespace TistorySaver
             // 리소스 다운로드 및 경로 수정.
             try
             {
+                content = ReplaceImageKage(content);
+
                 var doc = new HtmlDocument();
                 doc.LoadHtml(content);
 
@@ -132,6 +134,56 @@ namespace TistorySaver
             {
                 Logger?.Add(pageId, "백업을 완료할 수 없습니다.");
             }
+        }
+
+        private string ReplaceImageKage(string html)
+        {
+            var buffer = new StringBuilder();
+
+            string prefix = "[##_Image|kage@";
+            string suffix = "_##]";
+
+            int offset = 0;
+
+            while (offset < html.Length)
+            {
+                int begin = html.IndexOf(prefix, offset);
+
+                if (begin < 0)
+                {
+                    buffer.Append(html.Substring(offset, html.Length - offset));
+                    break;
+                }
+
+                if (begin > offset)
+                {
+                    buffer.Append(html.Substring(offset, begin - offset));
+                }
+
+                int end = html.IndexOf(suffix, begin);
+
+                if (end < 0)
+                {
+                    break;
+                }
+
+                string kage = html.Substring(begin, end - begin + suffix.Length);
+                string[] data = kage.Split('|');
+
+                if (data.Length >= 5)
+                {
+                    string src = data[1].Substring(data[1].IndexOf('@') + 1);
+
+                    buffer.Append($"<img src=\"https://k.kakaocdn.net/dn/{src}\"");
+                    buffer.Append($" {data[3]}");
+                    buffer.Append(">");
+                }
+
+                offset = end + suffix.Length;
+            }
+
+
+            return buffer.ToString();
         }
 
         private async Task<string> MakeResourceName(string path, string rcType, string src, string hint)
