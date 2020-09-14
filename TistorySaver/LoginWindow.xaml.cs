@@ -47,12 +47,12 @@ namespace TistorySaver
             // Check fragment.
             if (CheckWhenFragmentReceived != null)
             {
-                var args = new FragmentCheckArgs(e.Uri?.Fragment);
+                var args = new FragmentCheckArgs(e.Uri?.Query);
                 CheckWhenFragmentReceived(args);
 
                 if (args.IsDone)
                 {
-                    LoginFragment = e.Uri?.Fragment;
+                    LoginFragment = e.Uri?.Query;
 
                     this.Close();
                 }

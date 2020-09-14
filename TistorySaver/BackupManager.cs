@@ -91,10 +91,13 @@ namespace TistorySaver
                 var doc = new HtmlDocument();
                 doc.LoadHtml(content);
 
-                await BackupResources(path, pageId, "img", doc,
-                    "//img", "src", "filename");
-                await BackupResources(path, pageId, "attachment", doc,
-                    "//a[contains(@href,\'tistory.com/attachment/\')]", "href");
+                using (var client = new WebClient())
+                {
+                    await BackupResources(client, path, pageId, "img", doc,
+                        "//img", "src", "filename");
+                    await BackupResources(client, path, pageId, "attachment", doc,
+                        "//a[contains(@href,\'tistory.com/attachment/\')]", "href");
+                }
 
                 content = doc.DocumentNode.OuterHtml;
             }
@@ -293,7 +296,7 @@ namespace TistorySaver
         /// <param name="srcAttribute">리소스 경로가 담긴 속성입니다.</param>
         /// <param name="filenameAttribute">리소스 이름이 담긴 속성입니다.</param>
         /// <returns></returns>
-        private async Task BackupResources(string path, string pageId, string rcType,
+        private async Task BackupResources(WebClient client, string path, string pageId, string rcType,
             HtmlDocument doc, string nodePath, string srcAttribute,
             string filenameAttribute = "")
         {
@@ -308,7 +311,8 @@ namespace TistorySaver
             {
                 string src = node.GetAttributeValue(srcAttribute, string.Empty);
 
-                if (string.IsNullOrWhiteSpace(src) == false)
+                if (string.IsNullOrWhiteSpace(src) == false
+                    && src.Last() != '/')
                 {
                     string filename = string.Empty;
 
@@ -327,6 +331,22 @@ namespace TistorySaver
                         continue;
                     }
 
+                    int kageIndex = src.IndexOf("/kage@");
+                    if (kageIndex >= 0)
+                    {
+                        string imgPath = src.Substring(kageIndex + 6);
+                        if (!string.IsNullOrEmpty(imgPath))
+                        {
+                            src = "https://blog.kakaocdn.net/dn/" + imgPath;
+
+                            int slashIdx = imgPath.IndexOf('/');
+                            if (slashIdx > 0)
+                            {
+                                filename = imgPath.Substring(0, slashIdx) + filename;
+                            }
+                        }
+                    }
+
                     string dest = Path.Combine(path, filename);
 
                     int maxRetryCount = 5;
@@ -334,18 +354,24 @@ namespace TistorySaver
                     {
                         try
                         {
-                            using (var client = new WebClient())
-                            {
-                                await client.DownloadFileTaskAsync(src, dest);
-                            }
+                            await client.DownloadFileTaskAsync(src, dest);
 
                             break;
                         }
-                        catch (WebException)
+                        catch (WebException e)
                         {
                             if (retry < maxRetryCount)
                             {
-                                await Task.Delay(5000);
+                                if (e.Response is HttpWebResponse res
+                                    && (res.StatusCode == HttpStatusCode.Forbidden
+                                    || res.StatusCode == HttpStatusCode.NotFound))
+                                {
+                                    await Task.Delay(200);
+                                }
+                                else
+                                {
+                                    await Task.Delay(5000);
+                                }
                             }
                             else
                             {
